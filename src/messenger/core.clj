@@ -1,10 +1,14 @@
 (ns messenger.core
-  (:require [compojure.core :refer :all]
-            [compojure.route :as route]
-            [messenger.routes.home :refer [home-routes]]
-            [messenger.routes.webhook :refer [webhook-routes]]))
+  (:require [ring.adapter.jetty :as ring]
+            [compojure.core :refer :all]
+            [compojure.route :refer [not-found]]
+            [messenger.handler :refer [app]]
+            [messenger.routes :refer [app-routes]]))
 
-(defroutes app-routes
-  home-routes
-  webhook-routes
-  (route/not-found "Not Found"))
+(defn start [port]
+  (ring/run-jetty app {:port port
+                       :join? false}))
+
+(defn -main []
+  (let [port (Integer. (or (System/getenv "PORT") "3000"))]
+    (start port)))
